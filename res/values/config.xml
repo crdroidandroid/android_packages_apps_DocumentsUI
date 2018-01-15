@@ -18,7 +18,7 @@
     <!-- Intentionally unset. Vendors should set this in an overlay. -->
     <string name="trusted_quick_viewer_package" translatable="false"></string>
 
-    <bool name="show_documents_root">false</bool>
+    <bool name="show_documents_root">true</bool>
 
     <!-- Indicates if DocumentsUI should handle VIEW_DOWNLOADS Intent.
     on ARC++ devices, there exists another handler which handles VIEW_DOWNLOADS Intent. -->
@@ -52,7 +52,7 @@
     <bool name="feature_debug_mode">false</bool>
 
     <!-- Indicates if internal storage is shown as default or not. -->
-    <bool name="config_default_show_device_root">false</bool>
+    <bool name="config_default_show_device_root">true</bool>
 
     <!-- This option allows us to hide the Files app icon from launcher on Android Go device.
     Android Go device will have Files Go app for file management. -->
