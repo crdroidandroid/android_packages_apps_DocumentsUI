@@ -16,6 +16,7 @@
 
 package com.android.documentsui.roots;
 
+import static android.support.v4.util.Preconditions.checkArgument;
 import static com.android.documentsui.base.Shared.DEBUG;
 import static com.android.documentsui.base.Shared.VERBOSE;
 
@@ -238,11 +239,17 @@ public class ProvidersCache implements ProvidersAccess {
      */
     private Collection<RootInfo> loadRootsForAuthority(
             ContentResolver resolver, String authority, boolean forceRefresh) {
+        checkArgument(authority != null);
         if (VERBOSE) Log.v(TAG, "Loading roots for " + authority);
 
         final ArrayList<RootInfo> roots = new ArrayList<>();
-        ProviderInfo provider = mContext.getPackageManager().resolveContentProvider(
+        final PackageManager pm = mContext.getPackageManager();
+        ProviderInfo provider = pm.resolveContentProvider(
                 authority, PackageManager.GET_META_DATA);
+        if (provider == null) {
+            Log.w(TAG, "Failed to get provider info for " + authority);
+            return roots;
+        }
         if (!provider.exported) {
             Log.w(TAG, "Provider is not exported. Failed to load roots for " + authority);
             return roots;
@@ -250,7 +257,6 @@ public class ProvidersCache implements ProvidersAccess {
 
         synchronized (mObservedAuthoritiesDetails) {
             if (!mObservedAuthoritiesDetails.containsKey(authority)) {
-                PackageManager pm = mContext.getPackageManager();
                 CharSequence appName = pm.getApplicationLabel(provider.applicationInfo);
                 String packageName = provider.applicationInfo.packageName;
 
@@ -316,10 +322,12 @@ public class ProvidersCache implements ProvidersAccess {
 
     @Override
     public RootInfo getRootOneshot(String authority, String rootId) {
+        checkArgument(authority != null);
         return getRootOneshot(authority, rootId, false);
     }
 
     public RootInfo getRootOneshot(String authority, String rootId, boolean forceRefresh) {
+        checkArgument(authority != null);
         synchronized (mLock) {
             RootInfo root = forceRefresh ? null : getRootLocked(authority, rootId);
             if (root == null) {
@@ -448,7 +456,10 @@ public class ProvidersCache implements ProvidersAccess {
             final Intent intent = new Intent(DocumentsContract.PROVIDER_INTERFACE);
             final List<ResolveInfo> providers = pm.queryIntentContentProviders(intent, 0);
             for (ResolveInfo info : providers) {
-                handleDocumentsProvider(info.providerInfo);
+                ProviderInfo providerInfo = info.providerInfo;
+                if (providerInfo.authority != null) {
+                    handleDocumentsProvider(providerInfo);
+                }
             }
 
             final long delta = SystemClock.elapsedRealtime() - start;
@@ -469,6 +480,7 @@ public class ProvidersCache implements ProvidersAccess {
         }
 
         private void handleDocumentsProvider(ProviderInfo info) {
+            checkArgument(info.authority != null);
             // Ignore stopped packages for now; we might query them
             // later during UI interaction.
             if ((info.applicationInfo.flags & ApplicationInfo.FLAG_STOPPED) != 0) {
