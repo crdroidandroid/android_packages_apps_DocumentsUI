@@ -79,9 +79,9 @@ public class IconHelper {
      */
     public IconHelper(Context context, int mode, boolean maybeShowBadge, ConfigStore configStore) {
         this(context, mode, maybeShowBadge, DocumentsApplication.getThumbnailCache(context),
-                configStore.isPrivateSpaceInDocsUIEnabled() ? null
+                configStore != null && configStore.isPrivateSpaceInDocsUIEnabled() ? null
                         : DocumentsApplication.getUserIdManager(context).getManagedUser(),
-                configStore.isPrivateSpaceInDocsUIEnabled()
+                configStore != null && configStore.isPrivateSpaceInDocsUIEnabled()
                         ? DocumentsApplication.getUserManagerState(context) : null,
                 configStore);
     }
@@ -96,6 +96,9 @@ public class IconHelper {
         mManagedUser = managedUser;
         mMaybeShowBadge = maybeShowBadge;
         mUserManagerState = userManagerState;
+        if (configStore == null) {
+            configStore = DocumentsApplication.getConfigStore();
+        }
         mConfigStore = configStore;
     }
 
