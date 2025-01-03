@@ -581,6 +581,13 @@ public abstract class BaseActivity
                 getApplicationContext()
                         .getResources()
                         .getBoolean(R.bool.show_hidden_files_by_default));
+
+        if (mConfigStore == null) {
+            mConfigStore = DocumentsApplication.getConfigStore();
+            if (DEBUG) {
+                Log.d(mTag, "Created new config store object: " + mConfigStore);
+            }
+        }
         state.configStore = mConfigStore;
 
         includeState(state);
